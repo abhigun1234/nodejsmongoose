@@ -1,0 +1,67 @@
+const mongoose=require('mongoose');
+var api=require('..//database/dbHelper')
+var express =require('express')
+var app=express()
+app.use(express.json())
+mongoose.connect('mongodb://localhost/myonlinetrainer').then(()=>
+console.log('connected to mongoDb')).catch(error=>error)
+
+//schema
+
+//schema
+//https://github.com/abhigun1234/project-meanstack-2019-july
+const courseSchema=new mongoose.Schema({
+    name:String,
+    id:String,
+    description:String,
+    fees:String,
+    duration:String,
+    trainer:String
+    
+    })
+    //create model
+const Course =mongoose.model('Course',courseSchema)
+
+async function craeteCourse()
+{
+    const course= new Course({
+        name:"mongodb",
+        fees:'5500',
+        description:'mean stack',
+        menuType:'mean stack with mongoose',
+        duration:'3 hours',
+        trainer:'rama'
+    })
+    const result=await course.save()
+    console.log(result)
+
+}
+// craeteCourse()
+
+async function getCourseDetails()
+{
+    const course =await Course.find().exec()
+    //console.log(course)
+    return course
+}
+module.exports.getCourseDetails=getCourseDetails;
+// getCourseDetails()
+
+app.get("/getCourseDetails", async (request, response) => {
+    var objs = [];
+    try {
+        var result = await Course.find().exec();
+        console.log(result.length)
+         for (var i = 0;i < result.length; i++) {
+          objs.push({"name": result[i].name,"fees": result[i].fees});
+        
+        }
+        console.log(objs)
+        // alert('done')
+        //res.send(JSON.stringify(objs))
+        response.send(objs );
+    } catch (error) {
+        response.status(500).send(error);
+    }
+});
+app.listen(3002,()=>console.log('Listining  on port 3002...'))
